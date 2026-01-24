@@ -60,7 +60,7 @@ export function LoginForm() {
       }
 
       if (result.data) {
-        router.push("/");
+        router.push("/dashboard");
         router.refresh();
       }
     } catch (error) {
@@ -119,17 +119,19 @@ export function LoginForm() {
                       className="pr-10 text-white"
                       {...field}
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 h-auto w-auto -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5" />
                       ) : (
                         <Eye className="h-5 w-5" />
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </FormControl>
                 <FormMessage />

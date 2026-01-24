@@ -1,0 +1,239 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { TablePagination, TABLE_PAGE_SIZE } from "@/components/ui/table-pagination";
+import { getClientsAction } from "@/actions/get-clients";
+import { deleteClientAction } from "@/actions/delete-client";
+import { ClientForm } from "./client-form";
+
+type Client = {
+  id: string;
+  nome: string;
+  email: string | null;
+  telefone: string | null;
+  cpfCnpj: string | null;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export function ClientsTable() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+
+  const paginated = clients.slice(
+    (currentPage - 1) * TABLE_PAGE_SIZE,
+    currentPage * TABLE_PAGE_SIZE
+  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+
+  const { execute: fetchClients } = useAction(getClientsAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success && data.data) {
+        setClients(data.data);
+      }
+      setIsLoading(false);
+    },
+    onError: () => {
+      toast.error("Erro ao carregar clientes");
+      setIsLoading(false);
+    },
+  });
+
+  const { execute: deleteClient } = useAction(deleteClientAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success("Cliente excluído com sucesso!");
+        fetchClients({});
+        setDeleteDialogOpen(false);
+        setClientToDelete(null);
+      }
+    },
+    onError: () => {
+      toast.error("Erro ao excluir cliente");
+    },
+  });
+
+  useEffect(() => {
+    fetchClients({});
+  }, [fetchClients]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [clients.length]);
+
+  useEffect(() => {
+    const handleClientCreated = () => {
+      fetchClients({});
+    };
+
+    window.addEventListener("client-created", handleClientCreated);
+    return () => {
+      window.removeEventListener("client-created", handleClientCreated);
+    };
+  }, [fetchClients]);
+
+  const handleDeleteClick = (id: string) => {
+    setClientToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (clientToDelete) {
+      deleteClient({ id: clientToDelete });
+    }
+  };
+
+  const handleEdit = (client: Client) => {
+    setEditingClient(client);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = (open: boolean) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setEditingClient(null);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-8">Carregando...</div>;
+  }
+
+  return (
+    <div className="rounded-md border border-slate-200 dark:border-slate-700">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Telefone</TableHead>
+            <TableHead>CPF/CNPJ</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="w-[100px] text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {clients.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                Nenhum cliente cadastrado
+              </TableCell>
+            </TableRow>
+          ) : (
+            paginated.map((client) => (
+              <TableRow key={client.id}>
+                <TableCell className="font-medium">{client.nome}</TableCell>
+                <TableCell>{client.email || "-"}</TableCell>
+                <TableCell>{client.telefone || "-"}</TableCell>
+                <TableCell>{client.cpfCnpj || "-"}</TableCell>
+                <TableCell>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      client.isActive
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                    }`}
+                  >
+                    {client.isActive ? "Ativo" : "Inativo"}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(client)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(client.id)}
+                        className="text-red-600 dark:text-red-400"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+      <TablePagination
+        totalItems={clients.length}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        pageSize={TABLE_PAGE_SIZE}
+      />
+
+      <ClientForm
+        client={editingClient}
+        open={editDialogOpen}
+        onOpenChange={handleEditDialogClose}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
