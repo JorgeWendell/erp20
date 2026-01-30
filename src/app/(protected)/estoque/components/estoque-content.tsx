@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import {
 import { TablePagination, TABLE_PAGE_SIZE } from "@/components/ui/table-pagination";
 import { getLocationsAction } from "@/actions/get-locations";
 import { getStockByLocationAction } from "@/actions/get-stock-by-location";
+import { EntradaEstoqueForm } from "./entrada-estoque-form";
 
 type Location = {
   id: string;
@@ -46,6 +48,7 @@ export function EstoqueContent() {
   const [estoqueItems, setEstoqueItems] = useState<EstoqueItem[]>([]);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [entradaDialogOpen, setEntradaDialogOpen] = useState(false);
 
   const paginated = estoqueItems.slice(
     (currentPage - 1) * TABLE_PAGE_SIZE,
@@ -120,8 +123,20 @@ export function EstoqueContent() {
     );
   }
 
+  const handleEntradaSuccess = () => {
+    if (selectedLocationId) {
+      fetchStock({ locationId: selectedLocationId });
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button onClick={() => setEntradaDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nova entrada
+        </Button>
+      </div>
       <div className="flex flex-wrap gap-2">
         {locations.map((loc) => (
           <Button
@@ -198,6 +213,12 @@ export function EstoqueContent() {
           )}
         </div>
       )}
+
+      <EntradaEstoqueForm
+        open={entradaDialogOpen}
+        onOpenChange={setEntradaDialogOpen}
+        onSuccess={handleEntradaSuccess}
+      />
     </div>
   );
 }

@@ -3,13 +3,26 @@
 import { actionClient } from "@/lib/next-safe-action";
 import { db } from "@/db/index";
 import { productsTable, groupsTable, subgroupsTable } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import { getProductsSchema } from "./schema";
 
 export const getProductsAction = actionClient
   .schema(getProductsSchema)
-  .action(async () => {
-    const products = await db
+  .action(async ({ parsedInput }) => {
+    const conditions = [];
+    if (parsedInput.cod?.trim()) {
+      conditions.push(ilike(productsTable.cod, `%${parsedInput.cod.trim()}%`));
+    }
+    if (parsedInput.grupoId) {
+      conditions.push(eq(productsTable.grupoId, parsedInput.grupoId));
+    }
+    if (parsedInput.subgrupoId) {
+      conditions.push(eq(productsTable.subgrupoId, parsedInput.subgrupoId));
+    }
+    const whereClause =
+      conditions.length > 0 ? and(...conditions) : undefined;
+
+    const baseQuery = db
       .select({
         id: productsTable.id,
         cod: productsTable.cod,
@@ -26,8 +39,11 @@ export const getProductsAction = actionClient
       })
       .from(productsTable)
       .leftJoin(groupsTable, eq(productsTable.grupoId, groupsTable.id))
-      .leftJoin(subgroupsTable, eq(productsTable.subgrupoId, subgroupsTable.id))
-      .orderBy(desc(productsTable.createdAt));
+      .leftJoin(subgroupsTable, eq(productsTable.subgrupoId, subgroupsTable.id));
+
+    const products = whereClause
+      ? await baseQuery.where(whereClause).orderBy(desc(productsTable.createdAt))
+      : await baseQuery.orderBy(desc(productsTable.createdAt));
 
     return { success: true, data: products };
   });

@@ -1,13 +1,17 @@
 import { createAuthClient } from "better-auth/react";
 
-// Detectar automaticamente a baseURL baseada no ambiente
 const getBaseURL = () => {
   if (typeof window === "undefined") {
-    return "http://localhost:3000"; // Server-side fallback
+    return (
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.BETTER_AUTH_URL ||
+      "http://localhost:3000"
+    );
   }
-
-  // Client-side: usar a URL atual
-  return window.location.origin;
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    window.location.origin
+  );
 };
 
 export const authClient = createAuthClient({

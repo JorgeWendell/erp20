@@ -37,7 +37,9 @@ export const auth = betterAuth({
     "http://192.168.15.12:3000",
   ],
   baseURL:
-    process.env.NODE_ENV === "production"
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.NODE_ENV === "production"
       ? "http://erp.adelbr.tech:3000"
-      : "http://192.168.15.61:3000",
+      : "http://localhost:3000"),
 });

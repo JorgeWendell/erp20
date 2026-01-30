@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Bell, ChevronRight, LogOut, Moon, Sun } from "lucide-react";
+import { Search, Bell, ChevronRight, LogOut, Moon, Sun, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -40,6 +40,7 @@ const pageTitleMap: Record<string, string> = {
   "/configuracoes/grupos-subgrupos": "Grupos e Subgrupos",
   "/configuracoes/cadastro-produtos": "Cadastro de Produtos",
   "/suporte": "Suporte",
+  "/perfil": "Meu Perfil",
 };
 
 const getBreadcrumbs = (pathname: string): { label: string; path: string }[] => {
@@ -157,6 +158,16 @@ export function Header({ userName, userRole = "Gerente de Operações" }: Header
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/perfil"
+                    className="flex cursor-pointer items-center text-gray-900 dark:text-white focus:text-gray-900 dark:focus:text-white focus:bg-slate-100 dark:focus:bg-slate-700"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Meu Perfil</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-700" />
                 <DropdownMenuItem
                   onClick={toggleTheme}
                   className="cursor-pointer text-gray-900 dark:text-white focus:text-gray-900 dark:focus:text-white focus:bg-slate-100 dark:focus:bg-slate-700"

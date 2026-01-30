@@ -36,6 +36,14 @@ export function ForgotPasswordForm() {
     },
   });
 
+  const getConnectionErrorMessage = () => {
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    return `Não foi possível conectar ao servidor. Verifique se a aplicação está rodando e se você está acessando pela URL correta (ex.: ${baseUrl}).`;
+  };
+
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setIsLoading(true);
     try {
@@ -54,8 +62,19 @@ export function ForgotPasswordForm() {
 
       setIsSuccess(true);
     } catch (error) {
+      const isNetworkError =
+        error instanceof TypeError &&
+        (error.message === "Failed to fetch" ||
+          error.message.includes("Load failed"));
+      const isConnectionRefused =
+        error instanceof Error &&
+        (error.message.includes("ERR_CONNECTION_REFUSED") ||
+          error.message.includes("Connection refused"));
       form.setError("root", {
-        message: "Erro ao enviar instruções. Tente novamente.",
+        message:
+          isNetworkError || isConnectionRefused
+            ? getConnectionErrorMessage()
+            : "Erro ao enviar instruções. Tente novamente.",
       });
     } finally {
       setIsLoading(false);

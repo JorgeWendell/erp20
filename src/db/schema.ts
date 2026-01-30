@@ -173,3 +173,31 @@ export const stockTable = pgTable("stock", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const comprasStatusEnum = pgEnum("compras_status", [
+  "pendente",
+  "aprovado",
+  "reprovado",
+  "entregue",
+]);
+
+export const comprasTable = pgTable("compras", {
+  id: text("id").primaryKey(),
+  codigo: text("codigo").notNull().unique(),
+  productId: text("product_id")
+    .notNull()
+    .references(() => productsTable.id, { onDelete: "restrict" }),
+  supplierId: text("supplier_id")
+    .notNull()
+    .references(() => suppliersTable.id, { onDelete: "restrict" }),
+  locationId: text("location_id")
+    .notNull()
+    .references(() => locationsTable.id, { onDelete: "restrict" }),
+  quantity: numeric("quantity", { precision: 15, scale: 4 }).notNull(),
+  undMedida: undMedidaEnum("und_medida").notNull(),
+  temNota: boolean("tem_nota").notNull().default(false),
+  notaFileUrl: text("nota_file_url"),
+  status: comprasStatusEnum("status").notNull().default("pendente"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
