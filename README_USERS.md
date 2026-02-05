@@ -54,14 +54,16 @@ No menu à esquerda aparecem, por exemplo:
 |------|-----------|
 | **Dashboard** | Painel inicial |
 | **Produção** | Módulo em desenvolvimento |
-| **Estoque** | Consultar estoque por local |
-| **Compras** | Módulo em desenvolvimento |
+| **Estoque** | Consultar estoque por local e registrar novas entradas |
+| **Compras** | Pedidos de compra (criar, aprovar, reprovar, acompanhar entrega) |
+| **Vendas** | Menu com subitens: **Orçamento** e **PDV** |
 | **Engenharia** | Módulo em desenvolvimento |
 | **Relatórios** | Módulo em desenvolvimento |
-| **Configurações** | Cadastros e gestão (usuários, clientes, fornecedores, etc.) |
+| **Configurações** | Cadastros e gestão (usuários, clientes, fornecedores, locais, produtos, etc.) |
 | **Suporte** | Abrir chamados |
 
-Clique em um item para ir até a tela correspondente.
+- Clique em um item para ir até a tela correspondente.
+- O item **Vendas** pode ser expandido (seta): clique para abrir/fechar e acessar **Orçamento** ou **PDV**.
 
 ---
 
@@ -73,7 +75,7 @@ O **Dashboard** é a primeira tela após o login. Ela mostra um resumo inicial d
 
 ## 4. Estoque
 
-Aqui você **consulta o estoque** por local (filial, galpão, etc.).
+Aqui você **consulta o estoque** por local e **registra novas entradas** quando produtos chegam (por exemplo, após a aprovação de um pedido de compra).
 
 ### 4.1 Ver estoque de um local
 
@@ -81,26 +83,104 @@ Aqui você **consulta o estoque** por local (filial, galpão, etc.).
 2. Serão exibidos **botões com os nomes dos locais** cadastrados.
 3. Clique no **local** desejado. O botão do local selecionado fica destacado (ex.: em azul).
 4. Abaixo aparece a **tabela de estoque** daquele local, com:
-   - **Código** (no formato grupo - subgrupo - produto)
+   - **Código** (do produto)
    - **Produto**
    - **Quantidade**
    - **Unidade** (mts, br, un, etc.)
 
-### 4.2 Paginação
+### 4.2 Nova entrada
+
+Quando o produto chegar no local (por exemplo, após um pedido de compra aprovado), o operador pode **dar entrada** no estoque:
+
+1. Na tela **Estoque**, clique no botão **+ Nova entrada**.
+2. No diálogo que abrir:
+   - **Opção A – Pedido de compra:** No campo **Pedido de compra**, selecione o **código do pedido** (só aparecem pedidos com status **Aprovado**). Ao selecionar, o sistema preenche automaticamente: código completo (grupo — subgrupo — produto), nome do produto, **Local de entrega**, **Quantidade** e **Unidade**. Confira os dados e clique em **Validar**.
+   - **Opção B – Manual:** Selecione **Nenhum (buscar produto manualmente)**. Use **Buscar produto** (código, grupo, subgrupo) e depois escolha o produto. Informe **Local de entrega**, **Quantidade** e **Unidade**. Clique em **Validar**.
+3. Ao clicar em **Validar**:
+   - Se já existir estoque daquele produto no local, a **quantidade informada é somada** ao estoque atual.
+   - Se não existir, o sistema **cadastra** o produto naquele local com a quantidade informada.
+   - Se você tiver selecionado um **pedido de compra**, o status desse pedido passará automaticamente para **Entregue**.
+
+### 4.3 Paginação
 
 Se houver muitos itens, use os controles de **paginação** (Anterior, Próximo e números de página) no rodapé da tabela para navegar. Por padrão são mostrados **10 itens por página**.
 
-### 4.3 Nenhum local aparece
+### 4.4 Nenhum local aparece
 
 Se não houver locais, a tela informa que é necessário cadastrar locais em **Configurações → Cadastro de Locais**. Peça ao responsável pelo sistema para configurar os locais.
 
 ---
 
-## 5. Suporte
+## 5. Compras
+
+O módulo **Compras** permite criar **pedidos de compra**, aprovar ou reprovar e acompanhar até a **entrega** no local.
+
+### 5.1 Listagem de pedidos
+
+Na tela **Compras** você vê uma tabela com todos os pedidos, contendo:
+
+- **Código** (número do pedido, gerado automaticamente)
+- **Código completo** (grupo — subgrupo — código do produto)
+- **Produto** (nome)
+- **Fornecedor**
+- **Unidade** e **Quantidade**
+- **Nota** (Com nota / Sem nota)
+- **Local de entrega**
+- **Status:** Pendente, Aprovado, Reprovado ou **Entregue**
+- **Ações** (ícone ⋮): Editar, Excluir, Aprovar, Reprovar
+
+Use a **paginação** no rodapé da tabela (10 itens por página).
+
+### 5.2 Nova compra
+
+1. Clique em **Nova compra**.
+2. No formulário:
+   - **Buscar produto:** Informe **Código** e/ou selecione **Grupo** e **Subgrupo** → clique em **Buscar** → escolha o **Produto** na lista.
+   - **Fornecedor:** selecione o fornecedor.
+   - **Local de entrega:** selecione para qual local o produto será entregue.
+   - **Quantidade** e **Unidade** (a unidade pode ser preenchida automaticamente pelo produto).
+   - **Possui nota fiscal:** marque se houver. Se marcar, aparecerá um botão para **upload** do arquivo da nota (PDF ou imagem).
+3. Clique em **Cadastrar**.
+
+O pedido será criado com status **Pendente** e receberá um **código** único (não alterável).
+
+### 5.3 Editar compra
+
+- **Ações** (⋮) na linha do pedido → **Editar** (disponível apenas para pedidos **Pendentes**).
+- No diálogo você pode alterar: Fornecedor, Local de entrega, Quantidade, Unidade e dados da nota. **Não é possível alterar:** código do pedido, produto, grupo e subgrupo.
+- Salve com **Atualizar**.
+
+### 5.4 Aprovar e reprovar
+
+- **Aprovar:** Ações (⋮) → **Aprovar** (apenas para **Pendentes**). Ao aprovar, o sistema **dá entrada no estoque** (soma a quantidade no local de entrega). O status do pedido passa para **Aprovado**.
+- **Reprovar:** Ações (⋮) → **Reprovar** (apenas para **Pendentes**). O status passa para **Reprovado**.
+
+### 5.5 Entregue
+
+Quando o produto chegar no local, o operador usa **Estoque → + Nova entrada**, seleciona o **código do pedido** (aprovado), confere os dados e clica em **Validar**. O sistema registra a entrada no estoque e altera o status do pedido de compra para **Entregue**. Pedidos já entregues não aparecem mais na lista de pedidos para validar em Nova entrada.
+
+### 5.6 Excluir compra
+
+Ações (⋮) → **Excluir** → confirme na mensagem.
+
+---
+
+## 6. Vendas
+
+No menu lateral, o item **Vendas** possui dois subitens:
+
+- **Orçamento:** tela para criar e gerenciar orçamentos de vendas (em implementação).
+- **PDV:** Ponto de venda (em implementação).
+
+Clique em **Vendas** para expandir o menu e depois em **Orçamento** ou **PDV** para acessar a tela correspondente.
+
+---
+
+## 7. Suporte
 
 Use **Suporte** para **abrir chamados** (dúvidas, problemas, solicitações).
 
-### 5.1 Abrir um chamado
+### 7.1 Abrir um chamado
 
 1. Acesse **Suporte** no menu.
 2. Clique no botão **Abrir chamado**.
@@ -114,7 +194,7 @@ Após o envio, você verá uma mensagem de confirmação. O suporte responderá 
 
 ---
 
-## 6. Configurações
+## 8. Configurações
 
 Em **Configurações** ficam os **cadastros** e a **gestão** de usuários, clientes, fornecedores, locais, grupos, subgrupos e produtos. O que aparece aí depende das permissões da sua conta.
 
@@ -122,7 +202,7 @@ Ao clicar em **Configurações**, você verá cartões com links para cada módu
 
 ---
 
-### 6.1 Gestão de usuários
+### 8.1 Gestão de usuários
 
 - **O que é:** Cadastro e alteração de usuários do sistema (nome, e-mail, cargo, status ativo/inativo).
 - **Onde:** Configurações → **Gestão de usuários**.
@@ -137,7 +217,7 @@ A tabela tem **paginação** (10 itens por página). Use Anterior/Próximo ou o 
 
 ---
 
-### 6.2 Gestão de cargos
+### 8.2 Gestão de cargos
 
 - **O que é:** Cadastro de cargos (ex.: Vendedor, Analista, Gerente).
 - **Onde:** Configurações → **Gestão de Cargos**.
@@ -148,7 +228,7 @@ A tabela tem **paginação** (10 itens por página). Use Anterior/Próximo ou o 
 
 ---
 
-### 6.3 Cadastro de clientes
+### 8.3 Cadastro de clientes
 
 - **O que é:** Cadastro de clientes (nome, e-mail, telefone, CPF/CNPJ, endereço, cidade, estado, CEP, etc.).
 - **Onde:** Configurações → **Cadastro de Clientes**.
@@ -161,7 +241,7 @@ A lista possui paginação.
 
 ---
 
-### 6.4 Cadastro de fornecedores
+### 8.4 Cadastro de fornecedores
 
 - **O que é:** Cadastro de fornecedores, com os mesmos tipos de dados dos clientes.
 - **Onde:** Configurações → **Cadastro de Fornecedores**.
@@ -172,7 +252,7 @@ A lista possui paginação.
 
 ---
 
-### 6.5 Cadastro de locais
+### 8.5 Cadastro de locais
 
 - **O que é:** Cadastro de locais de estoque (filiais, galpões, etc.): nome, endereço, número, bairro, cidade, CEP.
 - **Onde:** Configurações → **Cadastro de Locais**.
@@ -185,7 +265,7 @@ Os locais cadastrados aparecem em **Estoque** para consulta.
 
 ---
 
-### 6.6 Grupos e subgrupos
+### 8.6 Grupos e subgrupos
 
 - **O que é:** **Grupos** e **subgrupos** usados para organizar produtos (ex.: grupo “Ferramentas”, subgrupo “Brocas”).
 - **Onde:** Configurações → **Grupos e Subgrupos**.
@@ -202,7 +282,7 @@ Na tela há abas ou seções para **Grupos** e **Subgrupos**.
 
 ---
 
-### 6.7 Cadastro de produtos
+### 8.7 Cadastro de produtos
 
 - **O que é:** Cadastro de produtos (código, grupo, subgrupo, nome, referências, unidade de medida) e definição de **em qual local** cada produto está e **em qual quantidade**.
 - **Onde:** Configurações → **Cadastro de Produtos**.
@@ -226,7 +306,7 @@ A tabela de produtos também usa **paginação** (10 itens por página).
 
 ---
 
-## 7. Ações nas tabelas (resumo)
+## 9. Ações nas tabelas (resumo)
 
 Em várias telas de cadastro você verá:
 
@@ -239,7 +319,7 @@ Em várias telas de cadastro você verá:
 
 ---
 
-## 8. Paginação
+## 10. Paginação
 
 Nas tabelas com muitos registros, são exibidos **10 itens por página**. No rodapé da tabela você encontra:
 
@@ -250,7 +330,7 @@ Use isso para navegar pela lista sem precisar rolar demais.
 
 ---
 
-## 9. Glossário rápido
+## 11. Glossário rápido
 
 | Termo | Significado |
 |-------|-------------|
@@ -260,10 +340,12 @@ Use isso para navegar pela lista sem precisar rolar demais.
 | **Código (produto)** | No estoque, costuma aparecer como **grupo - subgrupo - produto**. |
 | **Unidade de medida** | mts (metros), br (barras), un (unidade), etc. |
 | **Chamado** | Solicitação enviada pelo Suporte (dúvida, problema ou pedido). |
+| **Pedido de compra** | Solicitação de compra com produto, fornecedor, local de entrega e quantidade; pode ter status Pendente, Aprovado, Reprovado ou Entregue. |
+| **Nova entrada** | Registro de chegada de produto no local; pode ser feita a partir de um pedido aprovado (Validar) ou manualmente (buscar produto). |
 
 ---
 
-## 10. Dúvidas ou problemas
+## 12. Dúvidas ou problemas
 
 - Use **Suporte** no menu para **abrir um chamado**.
 - Em caso de erro na tela, anote a mensagem (ou tire um print) e informe no chamado.

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, Shield, Briefcase, ChevronRight, Building2, Truck, MapPin, FolderTree, Package } from "lucide-react";
+import { Users, Shield, Briefcase, ChevronRight, Building2, Truck, MapPin, FolderTree, Package, Tag } from "lucide-react";
 
 export default function Configuracoes() {
   return (
@@ -144,6 +144,24 @@ export default function Configuracoes() {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Gerencie o cadastro de produtos e referências
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+        </Link>
+
+        <Link
+          href="/configuracoes/precificacao"
+          className="flex items-center gap-4 rounded-lg bg-slate-50 dark:bg-slate-800 p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+            <Tag className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Precificação
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Defina preços e unidades de medida para produtos em estoque
             </p>
           </div>
           <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />

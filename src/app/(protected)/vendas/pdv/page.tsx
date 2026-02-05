@@ -1,4 +1,5 @@
 import { CreditCard } from "lucide-react";
+import { PdvContent } from "./components/pdv-content";
 
 export default function PDVPage() {
   return (
@@ -12,6 +13,7 @@ export default function PDVPage() {
           Ponto de venda
         </p>
       </div>
+      <PdvContent />
     </div>
   );
 }

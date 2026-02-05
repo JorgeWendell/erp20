@@ -201,3 +201,99 @@ export const comprasTable = pgTable("compras", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const pricingTable = pgTable("pricing", {
+  id: text("id").primaryKey(),
+  productId: text("product_id")
+    .notNull()
+    .references(() => productsTable.id, { onDelete: "cascade" }),
+  locationId: text("location_id")
+    .notNull()
+    .references(() => locationsTable.id, { onDelete: "cascade" }),
+  preco: numeric("preco", { precision: 15, scale: 2 }).notNull(),
+  undMedidaVenda: undMedidaEnum("und_medida_venda").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const vendasStatusEnum = pgEnum("vendas_status", [
+  "pendente",
+  "finalizada",
+  "cancelada",
+]);
+
+export const vendasTable = pgTable("vendas", {
+  id: text("id").primaryKey(),
+  codigo: text("codigo").notNull().unique(),
+  clientId: text("client_id").references(() => clientsTable.id, {
+    onDelete: "set null",
+  }),
+  locationId: text("location_id")
+    .notNull()
+    .references(() => locationsTable.id, { onDelete: "restrict" }),
+  total: numeric("total", { precision: 15, scale: 2 }).notNull(),
+  observacoes: text("observacoes"),
+  temNota: boolean("tem_nota").notNull().default(false),
+  status: vendasStatusEnum("status").notNull().default("finalizada"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const vendaItemsTable = pgTable("venda_items", {
+  id: text("id").primaryKey(),
+  vendaId: text("venda_id")
+    .notNull()
+    .references(() => vendasTable.id, { onDelete: "cascade" }),
+  productId: text("product_id")
+    .notNull()
+    .references(() => productsTable.id, { onDelete: "restrict" }),
+  quantity: numeric("quantity", { precision: 15, scale: 4 }).notNull(),
+  undMedida: undMedidaEnum("und_medida").notNull(),
+  precoUnitario: numeric("preco_unitario", { precision: 15, scale: 2 }).notNull(),
+  subtotal: numeric("subtotal", { precision: 15, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+});
+
+export const orcamentosStatusEnum = pgEnum("orcamentos_status", [
+  "pendente",
+  "aprovado",
+  "recusado",
+  "convertido",
+  "vencido",
+]);
+
+export const orcamentosTable = pgTable("orcamentos", {
+  id: text("id").primaryKey(),
+  codigo: text("codigo").notNull().unique(),
+  clientId: text("client_id")
+    .notNull()
+    .references(() => clientsTable.id, { onDelete: "restrict" }),
+  locationId: text("location_id")
+    .notNull()
+    .references(() => locationsTable.id, { onDelete: "restrict" }),
+  total: numeric("total", { precision: 15, scale: 2 }).notNull(),
+  observacoes: text("observacoes"),
+  validade: date("validade").notNull(),
+  temNota: boolean("tem_nota").notNull().default(false),
+  status: orcamentosStatusEnum("status").notNull().default("pendente"),
+  vendaId: text("venda_id").references(() => vendasTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const orcamentoItemsTable = pgTable("orcamento_items", {
+  id: text("id").primaryKey(),
+  orcamentoId: text("orcamento_id")
+    .notNull()
+    .references(() => orcamentosTable.id, { onDelete: "cascade" }),
+  productId: text("product_id")
+    .notNull()
+    .references(() => productsTable.id, { onDelete: "restrict" }),
+  quantity: numeric("quantity", { precision: 15, scale: 4 }).notNull(),
+  undMedida: undMedidaEnum("und_medida").notNull(),
+  precoUnitario: numeric("preco_unitario", { precision: 15, scale: 2 }).notNull(),
+  subtotal: numeric("subtotal", { precision: 15, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+});
